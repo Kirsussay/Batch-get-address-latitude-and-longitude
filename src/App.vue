@@ -1,4 +1,5 @@
 <template>
+  <ReadExcel />
   <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
   <Mapview ref="mapRef" />
  
@@ -11,7 +12,7 @@
 import { ref } from 'vue';
 import Mapview from './components/mapview.vue';
 import AddressQuery from './components/addressquery.vue';
-
+ import ReadExcel from './components/readExcel.vue'
 
 const mapRef = ref(null);
 
