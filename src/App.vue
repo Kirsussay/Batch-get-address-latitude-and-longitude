@@ -14,11 +14,11 @@ import AddressQuery from './components/addressquery.vue';
 const mapRef = ref(null);
 
 function handleSuggestions(tips) {
-  mapRef.value?.addLabels(tips);
+  mapRef.value.addLabels(tips);
 }
 
 function handleAddressSelect(item) {
-  mapRef.value?.highlightLabel(item.id);
+  mapRef.value.highlightLabel(item.id);
 
   // 1. 检查 location 是否存在且为字符串
   const location = item.location;
