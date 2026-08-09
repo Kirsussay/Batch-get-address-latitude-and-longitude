@@ -1,6 +1,7 @@
 <template>
   <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
   <Mapview ref="mapRef" />
+ 
   <div class="footer-text">该搜索服务由高德地图服务</div>
 
 </template>
@@ -10,6 +11,7 @@
 import { ref } from 'vue';
 import Mapview from './components/mapview.vue';
 import AddressQuery from './components/addressquery.vue';
+
 
 const mapRef = ref(null);
 
