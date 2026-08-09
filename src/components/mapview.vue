@@ -37,24 +37,26 @@
                 </div>
             </div>
 
-            <Label ref="labelRef" :map="map" />
         </main>
     </div>
 </template>
 
 <script setup>
 
-import{ref} from 'vue'
-import{MapSwitch} from '../composables/mapView.js'
-import Label from './label.vue'
+import { ref, watch } from 'vue'
+import { MapSwitch } from '../composables/mapView.js'
+import { useLabel } from '../composables/label.js'
 
 
-const {map,mapType,setMapCenter} = MapSwitch()
-const labelRef = ref(null)
-function addLabels(tips) { labelRef.value?.addLabels(tips) }
-function highlightLabel(tipId) { labelRef.value?.highlightLabel(tipId) }
+const { map, mapType, setMapCenter } = MapSwitch()
+const { labelMountToMap, addLabels, highlightLabel, clearLabel } = useLabel()
 
-defineExpose({setMapCenter,addLabels,highlightLabel})
+// 地图实例创建/切换时，将标注图层挂载到新地图
+watch(map, (newMap) => {
+    if (newMap) labelMountToMap(newMap)
+})
+
+defineExpose({ setMapCenter, addLabels, highlightLabel, clearLabel })
 
 
 </script>

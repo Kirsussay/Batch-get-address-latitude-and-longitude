@@ -5,6 +5,7 @@
 <script setup>
   import { watch } from 'vue'
   import { useLabel } from '../composables/label.js'
+  
   //获取从mapview中创建的地图对象实例
   const props = defineProps({
     map: { type: Object, default: null }
