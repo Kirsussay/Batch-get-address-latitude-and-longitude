@@ -1,3 +1,11 @@
+<template>
+  <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
+  <Mapview ref="mapRef" />
+  <div class="footer-text">该搜索服务由高德地图服务</div>
+
+</template>
+
+
 <script setup>
 import { ref } from 'vue';
 import Mapview from './components/mapview.vue';
@@ -34,12 +42,6 @@ function handleAddressSelect(item) {
 }
 </script>
 
-<template>
-  <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
-  <Mapview ref="mapRef" />
-  <div class="footer-text">该搜索服务由高德地图服务</div>
-
-</template>
 
 <style>
   .app-root {
