@@ -138,6 +138,10 @@ onUnmounted(() => {
 }
 
 .tip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   margin-top: 8px;
   padding: 10px;
   background: #fff;
@@ -148,6 +152,10 @@ onUnmounted(() => {
 }
 
 .suggest-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   margin-top: 6px;
   padding: 0;
   list-style: none;
@@ -191,6 +199,10 @@ onUnmounted(() => {
 }
 
 .expand-toggle {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   margin-top: 6px;
   padding: 10px 12px;
   background: #fff;

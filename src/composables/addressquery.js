@@ -1,6 +1,7 @@
 import {ref} from 'vue'
+import { GAODE_KEY } from '../config.js'
 
-const GaoDeKey ='61158e4b00c738a7ce2f1d31b37ed78f'
+
 
 export function useGeoSearch()
 {
@@ -19,7 +20,7 @@ export function useGeoSearch()
     try{
         const url = 'https://restapi.amap.com/v3/assistant/inputtips'
         const params = new URLSearchParams({
-            key : GaoDeKey,
+            key : GAODE_KEY,
             keywords : _keyword.value,
         })
         const res = await fetch(`${url}?${params.toString()}`)

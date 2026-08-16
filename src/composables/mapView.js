@@ -4,6 +4,7 @@ import { XYZ, OSM } from 'ol/source'
 import { fromLonLat } from 'ol/proj'
 import 'ol/ol.css'
 import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { TIANDITU_KEY } from '../config.js'
 
 // 销毁旧地图实例，释放资源
 function destroyOldMap(oldMap) {
@@ -18,19 +19,18 @@ function bindZoom(map) {
 
 // 天地图图层创建
 export function createTianDiTuMap() {
-  const TK = 'b88bfb160c81dab8d9d20aaa74846360'
   return bindZoom(new Map({
     target: 'map',
     layers: [
       new TileLayer({
         source: new XYZ({
-          url: `https://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TK}`,
+          url: `https://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
           crossOrigin: 'anonymous'
         })
       }),
       new TileLayer({
         source: new XYZ({
-          url: `https://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TK}`,
+          url: `https://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TIANDITU_KEY}`,
           crossOrigin: 'anonymous'
         })
       })

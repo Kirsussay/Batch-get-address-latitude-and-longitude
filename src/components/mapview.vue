@@ -14,7 +14,7 @@
                 <div class="select-wrapper">
                     <select class="map-select" v-model="mapType">
                         <!-- v-model的使用元素包括{input、select、textarea、checkbox、radio、components（自定义组件）}-->
-                         <!-- 多个CheckBox对应一个model时，model的类型是一个数组，单个checkbox值默认是boolean类型
+                        <!-- 多个CheckBox对应一个model时，model的类型是一个数组，单个checkbox值默认是boolean类型
                                 radio对应的值是input的value值
                                 text 和textarea 默认对应的model是字符串
                                 select单选对应字符串，多选对应也是数组}-->
@@ -22,7 +22,7 @@
                         <option value="TianDiTu">🌏 天地图</option>
                         <option value="OSM">🌐 OSM 地图</option>
                     </select>
-                    
+
                     <span class="select-arrow">▾</span>
                 </div>
             </div>
@@ -111,13 +111,15 @@ defineExpose({ setMapCenter, addLabels, highlightLabel, clearLabel })
     color: #fce7f3;
     letter-spacing: 1px;
 }
+
 .top-bar-search {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      margin: 0 16px;
-      min-width: 0;
-  }
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin: 0 16px;
+    min-width: 0;
+}
+
 /* 地图选择器 */
 .map-selector {
     display: flex;
@@ -226,7 +228,14 @@ defineExpose({ setMapCenter, addLabels, highlightLabel, clearLabel })
 }
 
 @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 4px rgba(236, 72, 153, 0.4); }
-    50%      { box-shadow: 0 0 14px rgba(236, 72, 153, 0.9); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 4px rgba(236, 72, 153, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 14px rgba(236, 72, 153, 0.9);
+    }
 }
 </style>
