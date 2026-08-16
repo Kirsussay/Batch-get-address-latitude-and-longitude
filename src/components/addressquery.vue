@@ -9,7 +9,7 @@
         @keydown.enter="onSearch"
       />
       <button @click="onSearch" :disabled="loading">搜索</button>
-      <div style="color: blueviolet;"> keywords:{{ keyword }} </div>
+      <!-- <div style="color: blueviolet;"> keywords:{{ keyword }} </div> -->
     </div>
 
     

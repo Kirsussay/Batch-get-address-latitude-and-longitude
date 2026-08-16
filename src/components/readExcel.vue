@@ -6,6 +6,11 @@
     </el-upload>
 
     <el-button type="success" @click="submit">提交</el-button>
+    <el-button type="warning" :disabled="!lonLatData.length" @click="exportXlsxFile">导出</el-button>
+
+    <el-progress v-if="progressNum > 0" :percentage="progressPercentage"
+      :format="() => `${progressDone}/${progressNum}`" :stroke-width="14" style="margin-top: 10px;">
+    </el-progress>
   </div>
 
 
@@ -23,11 +28,13 @@
   </el-dialog>
 
 
+
 </template>
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, computed } from 'vue';
 import * as XLSX from 'xlsx'
 import { autoResizerProps, ElMessage } from 'element-plus'
+
 
 const upload = ref(null)
 const fileContext = ref(null)
@@ -38,6 +45,11 @@ const headers = ref([])
 const selectAddressColumnIndex = ref(null)
 const lonLatData = ref([])
 const loading = ref(false)
+const progressNum = ref(0)
+const progressDone = ref(0)
+const progressPercentage = computed(() => {
+  return progressNum.value === 0 ? 0 : Math.round((progressDone.value / progressNum.value) * 100)
+})
 
 let abortController = null
 
@@ -52,6 +64,8 @@ function resetData() {
   lonLatData.value = []
   headers.value = []
   selectAddressColumnIndex.value = null
+  progressNum.value = 0
+  progressDone.value = 0
 }
 
 function handle(uploadFile) {
@@ -96,13 +110,13 @@ async function submit() {
   loading.value = true
   resetData()
   abortController = new AbortController()
-  try{
-  await readFile()
-  const detected = autoDetectAddress()
-  if(detected){
-    await getLonLatData()
-  }
-  }finally{
+  try {
+    await readFile()
+    const detected = autoDetectAddressColumn()
+    if (detected) {
+      await getLonLatData()
+    }
+  } finally {
     loading.value = false
   }
 }
@@ -129,7 +143,7 @@ function readFile() {
 
 const ADDRESS_KEYWORDS = ['地址', 'address', '位置', '地点', '所在', '详细地址', '区域']
 
-function autoDetectAddress() {
+function autoDetectAddressColumn() {
   if (!excelData.value || excelData.value.length === 0) {
     ElMessage.error('Excel数据为空')
     return false
@@ -147,11 +161,11 @@ function autoDetectAddress() {
       addressData.value = excelData.value.slice(1).map(row => row[index])
       console.log('地址数据:', addressData.value)
       addressIndex = index
-      
+
     }
   }
   console.log('地址列索引:', addressIndex)
-  
+
   if (addressIndex === -1) {
     headers.value = excelData.value[0]      // 把标题行放进弹窗
     selectAddressColumnIndex.value = null        // 重置选择
@@ -194,19 +208,23 @@ async function getLonLatData() {
     ElMessage.error('地址数据为空')
     return
   }
+
+  progressNum.value = addressData.value.length
+  progressDone.value = 0
   for (let i = 0; i < addressData.value.length; i++) {
     const address = addressData.value[i]
-    if (!address) {
-      lonLatData.value.push({ address, lon: null, lat: null })
-      continue
-    }
-    const params = new URLSearchParams({
-      key: GaoDeKey,
-      address: address
-    }).toString()
-
-    const url = `https://restapi.amap.com/v3/geocode/geo?${params}`
     try {
+      if (!address) {
+        lonLatData.value.push({ address, lon: null, lat: null })
+        continue
+      }
+      const params = new URLSearchParams({
+        key: GaoDeKey,
+        address: address
+      }).toString()
+
+      const url = `https://restapi.amap.com/v3/geocode/geo?${params}`
+
       const res = await fetch(url)
       const data = await res.json()
       console.log(`地址: ${address}, 响应数据:`, data)
@@ -225,12 +243,41 @@ async function getLonLatData() {
       }
       console.error('获取经纬度失败:', e)
       lonLatData.value.push({ address, lon: null, lat: null })
+    } finally {
+      progressDone.value++
+      await new Promise(r => setTimeout(r, 350))
     }
-    await new Promise(r => setTimeout(r, 350))
+
   }
   console.log('经纬度数据:', lonLatData.value)
 }
 
+function exportXlsxFile() {
+  if (!excelData.value.length) {
+    ElMessage.error('没有可导出的数据')
+    return
+  }
+  if (!lonLatData.value.length) {
+    ElMessage.warning('请先完成经纬度查询')
+    return
+  }
+  const rows = excelData.value.map(row => [...row])
+  rows[0] = rows[0] || []
+  rows[0].push('经度', '纬度')
+
+  for (let i = 1; i < rows.length; i++) {
+    const item = lonLatData.value[i - 1]
+    rows[i] = rows[i] || []
+    rows[i].push(item ? item.lon : null, item ? item.lat : null)
+  }
+  const ws = XLSX.utils.aoa_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
+
+  const baseName = fileContext.value?.name?.replace(/\.(xlsx|xls)$/i, '') || '地址'
+  XLSX.writeFile(wb, `${baseName}+经纬度.xlsx`)
+
+}
 
 
 </script>
