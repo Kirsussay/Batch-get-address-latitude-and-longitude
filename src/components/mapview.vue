@@ -6,6 +6,9 @@
                 <span class="brand-icon">🗺️</span>
                 <span class="brand-title">WebGIS</span>
             </div>
+            <div class="top-bar-search">
+                <slot name="search"></slot>
+            </div>
             <div class="map-selector">
                 <label class="selector-label">底图选择</label>
                 <div class="select-wrapper">
@@ -108,7 +111,13 @@ defineExpose({ setMapCenter, addLabels, highlightLabel, clearLabel })
     color: #fce7f3;
     letter-spacing: 1px;
 }
-
+.top-bar-search {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      margin: 0 16px;
+      min-width: 0;
+  }
 /* 地图选择器 */
 .map-selector {
     display: flex;

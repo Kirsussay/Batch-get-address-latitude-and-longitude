@@ -1,7 +1,11 @@
 <template>
   <ReadExcel />
-  <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
-  <Mapview ref="mapRef" />
+  
+  <Mapview ref="mapRef">
+    <template #search>
+      <AddressQuery @select="handleAddressSelect" @suggestions="handleSuggestions" />
+    </template>
+  </Mapview>
  
   <div class="footer-text">该搜索服务由高德地图服务</div>
 

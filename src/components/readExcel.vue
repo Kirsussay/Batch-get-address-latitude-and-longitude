@@ -7,10 +7,11 @@
 
     <el-button type="success" @click="submit">提交</el-button>
     <el-button type="warning" :disabled="!lonLatData.length" @click="exportXlsxFile">导出</el-button>
-
-    <el-progress v-if="progressNum > 0" :percentage="progressPercentage"
-      :format="() => `${progressDone}/${progressNum}`" :stroke-width="14" style="margin-top: 10px;">
-    </el-progress>
+    <div class="progress-wrap" v-if="progressNum > 0">
+      <el-progress :percentage="progressPercentage"
+        :format="() => `${progressDone}/${progressNum}`" :stroke-width="14">
+      </el-progress>
+  </div>
   </div>
 
 
@@ -287,20 +288,29 @@ function exportXlsxFile() {
 
 <style scoped>
 .read-excel {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 10px;
-}
+    position: absolute;
+    left: 12px;
+    top: 68px;
+    width: 180px;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
 
+  .read-excel :deep(.el-button) {
+    width: 100%;
+  }
 
-.read-excel :deep(.el-upload-list__item) {
-  max-width: none;
-}
-
-.read-excel :deep(.el-upload-list__item-file-name) {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
-}
+  .progress-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.12);
+    z-index: 300;
+  }
 </style>

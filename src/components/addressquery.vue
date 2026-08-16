@@ -1,40 +1,26 @@
 <template>
   <div class="address-query" ref="queryRef">
     <div class="search-box">
-      <input
-        v-model="keyword"
-        type="text"
-        placeholder="请输入地址关键词搜索..."
-        @input="onInput"
-        @keydown.enter="onSearch"
-      />
+      <input v-model="keyword" type="text" placeholder="请输入地址关键词搜索..." @input="onInput" @keydown.enter="onSearch" />
       <button @click="onSearch" :disabled="loading">搜索</button>
       <!-- <div style="color: blueviolet;"> keywords:{{ keyword }} </div> -->
     </div>
 
-    
+
 
     <div v-if="loading" class="tip">查询中...</div>
 
     <ul v-if="!collapsed && geoData.tips && geoData.tips.length" class="suggest-list">
-      <li
-        v-for="item in geoData.tips"
-        :key="item.id"
-        @click="onSelect(item)"
-      >
+      <li v-for="item in geoData.tips" :key="item.id" @click="onSelect(item)">
         <span class="name">{{ item.name }}</span>
         <span class="address">{{ item.address }}</span>
         <span class="district">{{ item.district }}</span>
       </li>
     </ul>
-    <div
-        v-if="collapsed && geoData.tips && geoData.tips.length"
-        class="expand-toggle"
-        @click.stop="collapsed = false"
-      >
-        <span>展开建议列表 ({{ geoData.tips.length }}条)</span>
-        <span class="arrow">▼</span>
-      </div>
+    <div v-if="collapsed && geoData.tips && geoData.tips.length" class="expand-toggle" @click.stop="collapsed = false">
+      <span>展开建议列表 ({{ geoData.tips.length }}条)</span>
+      <span class="arrow">▼</span>
+    </div>
 
     <div v-if="!loading && keyword && geoData.tips && !geoData.tips.length" class="tip">
       未找到相关地址
@@ -43,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref,onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 // 引入并执行工厂函数
 import { useGeoSearch } from '../composables/addressquery.js'
 const geoApi = useGeoSearch() // 实例化
@@ -90,32 +76,29 @@ async function doSearch() {
     loading.value = false
   }
 }
-const emit = defineEmits(['select','suggestions'])
+const emit = defineEmits(['select', 'suggestions'])
 function onSelect(item) {
   // collapsed.value = true
   emit('select', item)
 }
 const queryRef = ref(null)
 function handleClickOutside(e) {
-    if (queryRef.value && !queryRef.value.contains(e.target)) {
-      collapsed.value = true
-    }
+  if (queryRef.value && !queryRef.value.contains(e.target)) {
+    collapsed.value = true
   }
-  onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-  })
-  onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-  })
+}
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
 .address-query {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+  position: relative;
+  z-index: 200;
   width: 360px;
   font-size: 14px;
 }
@@ -159,7 +142,7 @@ function handleClickOutside(e) {
   padding: 10px;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
   color: #999;
 }
@@ -170,7 +153,7 @@ function handleClickOutside(e) {
   list-style: none;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   max-height: 300px;
   overflow-y: auto;
 }
@@ -206,27 +189,28 @@ function handleClickOutside(e) {
   font-size: 12px;
   color: #999;
 }
+
 .expand-toggle {
-    margin-top: 6px;
-    padding: 10px 12px;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #2678c6;
-    font-size: 13px;
-    transition: background 0.2s;
-  }
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #2678c6;
+  font-size: 13px;
+  transition: background 0.2s;
+}
 
-  .expand-toggle:hover {
-    background: #f0f6ff;
-  }
+.expand-toggle:hover {
+  background: #f0f6ff;
+}
 
-  .expand-toggle .arrow {
-    font-size: 10px;
-    transition: transform 0.2s;
-  }
+.expand-toggle .arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
 </style>
