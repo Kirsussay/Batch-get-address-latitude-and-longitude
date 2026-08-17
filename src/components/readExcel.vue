@@ -1,28 +1,28 @@
 <template>
   <div class="read-excel">
-    <el-upload class="upload-demo" ref="upload" accept=".xlsx, .xls" action="" :auto-upload="false"
+    <el-upload class="upload-demo" ref="_upload" accept=".xlsx, .xls" action="" :auto-upload="false"
       :show-file-list="true" :on-change="handle">
       <el-button type="primary" size="large" slot="trigger">上传文件</el-button>
     </el-upload>
 
     <el-button type="success" @click="submit">提交</el-button>
-    <el-button type="warning" :disabled="!lonLatData.length" @click="exportXlsxFile">导出</el-button>
-    <div class="progress-wrap" v-if="progressNum > 0">
-      <el-progress :percentage="progressPercentage" :format="() => `${progressDone}/${progressNum}`" :stroke-width="14">
+    <el-button type="warning" :disabled="!_lonLatData.length" @click="exportXlsxFile">导出</el-button>
+    <div class="progress-wrap" v-if="_progressNum > 0">
+      <el-progress :percentage="progressPercentage" :format="() => `${_progressDone}/${_progressNum}`" :stroke-width="14">
       </el-progress>
     </div>
   </div>
 
 
-  <el-dialog v-model="dialogVisible" title="请选择地址列" width="420px">
-    <el-radio-group v-model="selectAddressColumnIndex">
+  <el-dialog v-model="_dialogVisible" title="请选择地址列" width="420px">
+    <el-radio-group v-model="_selectAddressColumnIndex">
       <el-radio v-for="(title, index) in headers" :key="index" :value="index"
         style="display: block;margin-bottom: 10px;">{{ title }}
       </el-radio>
     </el-radio-group>
 
     <template #footer>
-      <el-button @click="dialogVisible = false">取消</el-button>
+      <el-button @click="_dialogVisible = false">取消</el-button>
       <el-button type="primary" @click="confirmAddressColumn">确定</el-button>
     </template>
   </el-dialog>
@@ -36,19 +36,20 @@ import * as XLSX from 'xlsx'
 import { autoResizerProps, ElMessage } from 'element-plus'
 import { GAODE_KEY } from '../config.js'
 
-const upload = ref(null)
-const fileContext = ref(null)
-const excelData = ref([])
-const addressData = ref([])
-const dialogVisible = ref(false)
-const headers = ref([])
-const selectAddressColumnIndex = ref(null)
-const lonLatData = ref([])
-const loading = ref(false)
-const progressNum = ref(0)
-const progressDone = ref(0)
+const _upload = ref(null)
+const _fileContext = ref(null)
+const _excelData = ref([])
+const _addressData = ref([])
+const _dialogVisible = ref(false)
+const _headers = ref([])
+const _selectAddressColumnIndex = ref(null)
+const _lonLatData = ref([])
+const _loading = ref(false)
+const _progressNum = ref(0)
+const _progressDone = ref(0)
+
 const progressPercentage = computed(() => {
-  return progressNum.value === 0 ? 0 : Math.round((progressDone.value / progressNum.value) * 100)
+  return _progressNum.value === 0 ? 0 : Math.round((_progressDone.value / _progressNum.value) * 100)
 })
 
 let abortController = null
@@ -59,13 +60,13 @@ onUnmounted(() => {
 
 // 重置所有派生数据，防止跨提交累积脏数据
 function resetData() {
-  excelData.value = []
-  addressData.value = []
-  lonLatData.value = []
-  headers.value = []
-  selectAddressColumnIndex.value = null
-  progressNum.value = 0
-  progressDone.value = 0
+  _excelData.value = []
+  _addressData.value = []
+  _lonLatData.value = []
+  _headers.value = []
+  _selectAddressColumnIndex.value = null
+  _progressNum.value = 0
+  _progressDone.value = 0
 }
 
 function handle(uploadFile) {
@@ -79,18 +80,18 @@ function handle(uploadFile) {
   }
   else {
     ElMessage.error('请上传Excel文件')
-    upload.value?.clearFiles()
+    _upload.value?.clearFiles()
     // uploadFile.status = 'fail'
     return
   }
 
   if (file.size === 0) {
     ElMessage.error('文件为空')
-    upload.value?.clearFiles()
+    _upload.value?.clearFiles()
     return false
 
   }
-  fileContext.value = file
+  _fileContext.value = file
   resetData()
   ElMessage.success(`文件上传成功:${file.name}`)
 
@@ -98,16 +99,16 @@ function handle(uploadFile) {
 
 
 async function submit() {
-  if (loading.value) {
+  if (_loading.value) {
     ElMessage.warning('正在处理中，请稍候')
     return
   }
 
-  if (!fileContext.value) {
+  if (!_fileContext.value) {
     ElMessage.error('请先上传文件')
     return
   }
-  loading.value = true
+  _loading.value = true
   resetData()
   abortController = new AbortController()
   try {
@@ -117,7 +118,7 @@ async function submit() {
       await getLonLatData()
     }
   } finally {
-    loading.value = false
+    _loading.value = false
   }
 }
 
@@ -130,12 +131,12 @@ function readFile() {
       const sheet = workbook.Sheets[workbook.SheetNames[0]]
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 })
 
-      excelData.value = rows
-      console.log('Excel数据:', excelData.value)
+      _excelData.value = rows
+      console.log('Excel数据:', _excelData.value)
       resolve(rows)
     }
     reader.onerror = reject
-    reader.readAsArrayBuffer(fileContext.value)
+    reader.readAsArrayBuffer(_fileContext.value)
 
   })
 }
@@ -144,12 +145,12 @@ function readFile() {
 const ADDRESS_KEYWORDS = ['地址', 'address', '位置', '地点', '所在', '详细地址', '区域']
 
 function autoDetectAddressColumn() {
-  if (!excelData.value || excelData.value.length === 0) {
+  if (!_excelData.value || _excelData.value.length === 0) {
     ElMessage.error('Excel数据为空')
     return false
   }
 
-  const headerRow = excelData.value[0]
+  const headerRow = _excelData.value[0]
   console.log('Header Row:', headerRow)
   let addressIndex = -1
   //entries()方法返回一个新的Array Iterator对象，该对象包含数组中的索引和对应的值
@@ -158,8 +159,8 @@ function autoDetectAddressColumn() {
     if (ADDRESS_KEYWORDS.includes(item)) {
       ElMessage.success(`检测到地址列:${item},索引为${index}`)
       //slice(1)去掉表头，map(row => row[index])遍历上面的每一行（row），取出每一行中下标为 index（即 1）的那个元素，组成新数组。
-      addressData.value = excelData.value.slice(1).map(row => row[index])
-      console.log('地址数据:', addressData.value)
+      _addressData.value = _excelData.value.slice(1).map(row => row[index])
+      console.log('地址数据:', _addressData.value)
       addressIndex = index
 
     }
@@ -167,9 +168,9 @@ function autoDetectAddressColumn() {
   console.log('地址列索引:', addressIndex)
 
   if (addressIndex === -1) {
-    headers.value = excelData.value[0]      // 把标题行放进弹窗
-    selectAddressColumnIndex.value = null        // 重置选择
-    dialogVisible.value = true              // 打开弹窗
+    _headers.value = _excelData.value[0]      // 把标题行放进弹窗
+    _selectAddressColumnIndex.value = null        // 重置选择
+    _dialogVisible.value = true              // 打开弹窗
     ElMessage.warning('未检测到地址列，请手动选择')
     return false
   }
@@ -177,26 +178,26 @@ function autoDetectAddressColumn() {
 }
 
 function selectAddressColumn(index) {
-  addressData.value = excelData.value.slice(1).map(row => row[index])
+  _addressData.value = _excelData.value.slice(1).map(row => row[index])
   console.log('手动选择地址列索引:', index)
-  console.log('地址数据:', addressData.value)
-  ElMessage.success(`已获取地址列：${excelData.value[0][index]}`)
+  console.log('地址数据:', _addressData.value)
+  ElMessage.success(`已获取地址列：${_excelData.value[0][index]}`)
   return true
 }
 
 async function confirmAddressColumn() {
-  if (selectAddressColumnIndex.value === null) {
+  if (_selectAddressColumnIndex.value === null) {
     ElMessage.error('请先选择地址列')
     return
   }
-  selectAddressColumn(selectAddressColumnIndex.value)
-  dialogVisible.value = false
+  selectAddressColumn(_selectAddressColumnIndex.value)
+  _dialogVisible.value = false
 
-  loading.value = true
+  _loading.value = true
   try {
     await getLonLatData()
   } finally {
-    loading.value = false
+    _loading.value = false
   }
 }
 
@@ -204,18 +205,18 @@ async function confirmAddressColumn() {
 
 async function getLonLatData() {
 
-  if (addressData.value.length === 0) {
+  if (_addressData.value.length === 0) {
     ElMessage.error('地址数据为空')
     return
   }
 
-  progressNum.value = addressData.value.length
-  progressDone.value = 0
-  for (let i = 0; i < addressData.value.length; i++) {
-    const address = addressData.value[i]
+  _progressNum.value = _addressData.value.length
+  _progressDone.value = 0
+  for (let i = 0; i < _addressData.value.length; i++) {
+    const address = _addressData.value[i]
     try {
       if (!address) {
-        lonLatData.value.push({ address, lon: null, lat: null })
+        _lonLatData.value.push({ address, lon: null, lat: null })
         continue
       }
       const params = new URLSearchParams({
@@ -231,10 +232,10 @@ async function getLonLatData() {
       if (data.status === '1' && data.geocodes.length > 0) {
         const location = data.geocodes[0].location
         const [lon, lat] = location.split(',').map(Number)
-        lonLatData.value.push({ address, lon, lat })
+        _lonLatData.value.push({ address, lon, lat })
       }
       else {
-        lonLatData.value.push({ address, lon: null, lat: null })
+        _lonLatData.value.push({ address, lon: null, lat: null })
       }
     } catch (e) {
       if (e.name === 'AbortError') {
@@ -242,31 +243,31 @@ async function getLonLatData() {
         return
       }
       console.error('获取经纬度失败:', e)
-      lonLatData.value.push({ address, lon: null, lat: null })
+      _lonLatData.value.push({ address, lon: null, lat: null })
     } finally {
-      progressDone.value++
+      _progressDone.value++
       await new Promise(r => setTimeout(r, 350))
     }
 
   }
-  console.log('经纬度数据:', lonLatData.value)
+  console.log('经纬度数据:', _lonLatData.value)
 }
 
 function exportXlsxFile() {
-  if (!excelData.value.length) {
+  if (!_excelData.value.length) {
     ElMessage.error('没有可导出的数据')
     return
   }
-  if (!lonLatData.value.length) {
+  if (!_lonLatData.value.length) {
     ElMessage.warning('请先完成经纬度查询')
     return
   }
-  const rows = excelData.value.map(row => [...row])
+  const rows = _excelData.value.map(row => [...row])
   rows[0] = rows[0] || []
   rows[0].push('经度', '纬度')
 
   for (let i = 1; i < rows.length; i++) {
-    const item = lonLatData.value[i - 1]
+    const item = _lonLatData.value[i - 1]
     rows[i] = rows[i] || []
     rows[i].push(item ? item.lon : null, item ? item.lat : null)
   }
@@ -274,7 +275,7 @@ function exportXlsxFile() {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
 
-  const baseName = fileContext.value?.name?.replace(/\.(xlsx|xls)$/i, '') || '地址'
+  const baseName = _fileContext.value?.name?.replace(/\.(xlsx|xls)$/i, '') || '地址'
   XLSX.writeFile(wb, `${baseName}+经纬度.xlsx`)
 
 }
